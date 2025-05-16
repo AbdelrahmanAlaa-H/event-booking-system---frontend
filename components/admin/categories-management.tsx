@@ -94,7 +94,7 @@ export function CategoriesManagement() {
     if (window.confirm(t("confirm_delete_category"))) {
       try {
         await deleteCategory(id);
-        setCategories(categories.filter((category) => category.id !== id));
+        setCategories(categories.filter((category) => category._id !== id));
         toast({
           title: t("success"),
           description: t("category_deleted"),
@@ -153,7 +153,7 @@ export function CategoriesManagement() {
                 </TableRow>
               ) : (
                 categories.map((category) => (
-                  <TableRow key={category.id}>
+                  <TableRow key={category._id}>
                     <TableCell className="font-medium">
                       {category.name}
                     </TableCell>
@@ -161,7 +161,7 @@ export function CategoriesManagement() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(category.id)}
+                        onClick={() => handleDelete(category._id)}
                       >
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">{t("delete")}</span>

@@ -158,6 +158,7 @@ export function EventsManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting event", formData);
     setIsSubmitting(true);
 
     // Validation
@@ -189,7 +190,7 @@ export function EventsManagement() {
         price: Number.parseFloat(formData.price),
         imageUrl: formData.imageUrl,
         category: formData.categoryId,
-        tags: formData.tags,
+        tags: formData.tags.filter(Boolean),
       };
 
       let updatedEvent;
@@ -232,7 +233,7 @@ export function EventsManagement() {
     if (window.confirm(t("confirm_delete_event"))) {
       try {
         await deleteEvent(id);
-        setEvents(events.filter((event) => event.id !== id));
+        setEvents(events.filter((event) => (event._id || event.id) !== id));
         toast({
           title: t("success"),
           description: t("event_deleted"),
@@ -297,7 +298,7 @@ export function EventsManagement() {
                 </TableRow>
               ) : (
                 events.map((event) => (
-                  <TableRow key={event.id}>
+                  <TableRow key={event._id || event.id}>
                     <TableCell>
                       <div className="relative h-10 w-16 overflow-hidden rounded">
                         <Image
@@ -305,7 +306,7 @@ export function EventsManagement() {
                             event.imageUrl ||
                             "/placeholder.svg?height=40&width=64"
                           }
-                          alt={event.name}
+                          alt={event.name || "Event image"}
                           fill
                           className="object-cover"
                         />
@@ -326,7 +327,12 @@ export function EventsManagement() {
                     </TableCell>
                     <TableCell>{event.category?.name || "-"}</TableCell>
                     <TableCell>
-                      {event.tags?.map((tag) => tag.name).join(", ") || "-"}
+                      {Array.isArray(event.tags) && event.tags.length > 0
+                        ? event.tags
+                            .filter((tag) => tag && tag.name)
+                            .map((tag) => tag.name)
+                            .join(", ")
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -341,7 +347,7 @@ export function EventsManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleDelete(event.id)}
+                          onClick={() => handleDelete(event._id || event.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">{t("delete")}</span>
@@ -357,12 +363,20 @@ export function EventsManagement() {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent
+          className="sm:max-w-[600px]"
+          aria-describedby="event-dialog-description"
+        >
           <DialogHeader>
             <DialogTitle>
               {selectedEvent ? t("edit_event") : t("add_event")}
             </DialogTitle>
           </DialogHeader>
+          <div id="event-dialog-description" className="sr-only">
+            {selectedEvent
+              ? t("edit_event_description")
+              : t("add_event_description")}
+          </div>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -450,7 +464,10 @@ export function EventsManagement() {
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
+                        <SelectItem
+                          key={category._id || category.id}
+                          value={category._id || category.id}
+                        >
                           {category.name}
                         </SelectItem>
                       ))}
@@ -475,7 +492,10 @@ export function EventsManagement() {
                 <label className="text-sm font-medium">{t("tags")}</label>
                 <div className="flex flex-wrap gap-2">
                   {tags.map((tag) => (
-                    <label key={tag.id} className="flex items-center gap-1">
+                    <label
+                      key={tag._id || tag.id}
+                      className="flex items-center gap-1"
+                    >
                       <input
                         type="checkbox"
                         checked={formData.tags.includes(tag.id)}
