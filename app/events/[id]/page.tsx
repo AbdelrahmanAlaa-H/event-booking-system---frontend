@@ -227,9 +227,6 @@ export default function EventDetailsPage() {
           </Card>
         </div>
       </div>
-      <div id="events-section" className="pt-8 scroll-mt-20">
-        <EventSquareGrid />
-      </div>
     </div>
   );
 }

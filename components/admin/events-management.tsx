@@ -60,7 +60,7 @@ export function EventsManagement() {
     date: "",
     venue: "",
     price: "",
-    imageUrl: "",
+    imageFile: null,
     categoryId: "",
     tags: [] as string[],
   });
@@ -100,7 +100,7 @@ export function EventsManagement() {
       date: "",
       venue: "",
       price: "",
-      imageUrl: "",
+      imageFile: null,
       categoryId: "",
       tags: [],
     });
@@ -119,7 +119,7 @@ export function EventsManagement() {
         date: formattedDate,
         venue: event.venue,
         price: event.price?.toString() || "",
-        imageUrl: event.imageUrl || "",
+        imageFile: null,
         categoryId:
           (event.categoryId || event.category?._id || event.category) ?? "",
         tags: event.tags?.map((tag: any) => tag._id || tag.id || tag) || [],
@@ -158,7 +158,6 @@ export function EventsManagement() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting event", formData);
     setIsSubmitting(true);
 
     // Validation
@@ -182,24 +181,35 @@ export function EventsManagement() {
     }
 
     try {
-      const eventData = {
-        title: formData.name,
-        description: formData.description,
-        date: new Date(formData.date).toISOString(),
-        location: formData.venue,
-        price: Number.parseFloat(formData.price),
-        imageUrl: formData.imageUrl,
-        category: formData.categoryId,
-        tags: formData.tags.filter(Boolean),
-      };
+      const form = new FormData();
+      form.append("title", formData.name);
+      form.append("description", formData.description);
+      form.append("date", new Date(formData.date).toISOString());
+      form.append("location", formData.venue);
+      form.append("price", formData.price);
+      form.append("category", formData.categoryId);
+
+      // Append each tag as a separate field
+      formData.tags.forEach((tag) => form.append("tags", tag));
+
+      // Append the image file
+      if (formData.imageFile) {
+        form.append("image", formData.imageFile);
+      }
 
       let updatedEvent;
 
       if (selectedEvent) {
-        updatedEvent = await updateEvent(selectedEvent.id, eventData);
+        updatedEvent = await updateEvent(
+          selectedEvent._id || selectedEvent.id,
+          form,
+          true
+        );
         setEvents(
           events.map((event) =>
-            event.id === selectedEvent.id ? updatedEvent : event
+            (event._id || event.id) === (selectedEvent._id || selectedEvent.id)
+              ? updatedEvent
+              : event
           )
         );
         toast({
@@ -207,7 +217,7 @@ export function EventsManagement() {
           description: t("event_updated"),
         });
       } else {
-        updatedEvent = await createEvent(eventData);
+        updatedEvent = await createEvent(form, true);
         setEvents([...events, updatedEvent]);
         toast({
           title: t("success"),
@@ -475,15 +485,21 @@ export function EventsManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="imageUrl" className="text-sm font-medium">
-                    {t("image_url")}
+                  <label htmlFor="imageFile" className="text-sm font-medium">
+                    {t("image_upload")}
                   </label>
                   <Input
-                    id="imageUrl"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    placeholder="https://example.com/image.jpg"
+                    id="imageFile"
+                    name="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setFormData((prev) => ({
+                        ...prev,
+                        imageFile: file,
+                      }));
+                    }}
                   />
                 </div>
               </div>
@@ -491,26 +507,26 @@ export function EventsManagement() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">{t("tags")}</label>
                 <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <label
-                      key={tag._id || tag.id}
-                      className="flex items-center gap-1"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.tags.includes(tag.id)}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            tags: e.target.checked
-                              ? [...prev.tags, tag.id]
-                              : prev.tags.filter((id) => id !== tag.id),
-                          }))
-                        }
-                      />
-                      {tag.name}
-                    </label>
-                  ))}
+                  {tags.map((tag) => {
+                    const tagId = tag._id || tag.id;
+                    return (
+                      <label key={tagId} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={formData.tags.includes(tagId)}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              tags: e.target.checked
+                                ? [...prev.tags, tagId]
+                                : prev.tags.filter((id) => id !== tagId),
+                            }))
+                          }
+                        />
+                        {tag.name}
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>

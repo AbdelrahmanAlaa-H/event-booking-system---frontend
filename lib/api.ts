@@ -118,8 +118,22 @@ export const getUserBookings = async (token: string) => {
 };
 
 // Events
-export const createEvent = (eventData: Partial<Event>): Promise<Event> => {
-  return apiRequest(getApiUrl("/api/events"), "POST", eventData);
+export const createEvent = async (formData: FormData) => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const headers: any = {};
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  // Do NOT set Content-Type, browser will set it for FormData
+  const response = await fetch(getApiUrl("/api/events"), {
+    method: "POST",
+    headers,
+    body: formData,
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Failed to create event");
+  return response.json();
 };
 
 export const updateEvent = (
