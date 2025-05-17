@@ -207,21 +207,6 @@ export default function EventDetailsPage() {
                       : "N/A"}
                   </p>
                 </div>
-                <div className="pt-4">
-                  {isBooked ? (
-                    <Badge className="w-full py-2 justify-center text-base">
-                      {t("booked")}
-                    </Badge>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      onClick={handleBookEvent}
-                      disabled={isBooking}
-                    >
-                      {isBooking ? t("booking") : t("book_now")}
-                    </Button>
-                  )}
-                </div>
               </div>
             </CardContent>
           </Card>

@@ -56,7 +56,9 @@ export default function EventsList() {
   }, [isAuthenticated]);
 
   // Get booked event IDs
-  const bookedEventIds = new Set(bookings.map((b) => b.event._id));
+  const bookedEventIds = new Set(
+    bookings.filter((b) => b.event && b.event._id).map((b) => b.event._id)
+  );
 
   const handleBook = async (eventId: string) => {
     const token = localStorage.getItem("token");
@@ -98,7 +100,9 @@ export default function EventsList() {
                   className="w-full h-40 object-cover rounded-md mb-4"
                 />
               )}
-              <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
+              <h3 className="text-xl font-semibold mb-2 text-primary">
+                {event.title}
+              </h3>
               <p className="text-gray-600 mb-2">{event.description}</p>
               <p className="text-gray-500 mb-1">
                 <span className="font-medium">Date:</span>{" "}

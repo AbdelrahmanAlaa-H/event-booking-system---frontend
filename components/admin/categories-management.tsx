@@ -28,7 +28,9 @@ import { useTranslation } from "@/contexts/language-context";
 import { fetchCategories, createCategory, deleteCategory } from "@/lib/api";
 import type { Category } from "@/types";
 
-export function CategoriesManagement() {
+export function CategoriesManagement(props: {
+  onCategoryCreated?: () => void;
+}) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +81,9 @@ export function CategoriesManagement() {
         description: t("category_created"),
       });
       handleCloseDialog();
+      if (props.onCategoryCreated) {
+        props.onCategoryCreated();
+      }
     } catch (error) {
       toast({
         title: t("error"),

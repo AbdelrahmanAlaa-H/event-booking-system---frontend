@@ -98,42 +98,46 @@ export default function BookingsPage() {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">{t("my_bookings")}</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bookings.map((booking) => (
-          <Card key={booking.id} className="overflow-hidden">
-            <div className="relative h-[200px]">
-              <Image
-                src={
-                  booking.event.imageUrl ||
-                  "/placeholder.svg?height=200&width=400"
-                }
-                alt={booking.event.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-2">
-                {booking.event.name}
-              </h2>
-              <div className="flex items-center text-sm text-muted-foreground mb-4">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>{new Date(booking.event.date).toLocaleDateString()}</span>
-                <MapPin className="h-4 w-4 ml-3 mr-1" />
-                <span>{booking.event.venue}</span>
+        {bookings
+          .filter((booking) => booking.event)
+          .map((booking) => (
+            <Card key={booking.id} className="overflow-hidden">
+              <div className="relative h-[200px]">
+                <Image
+                  src={
+                    booking.event.imageUrl ||
+                    "/placeholder.svg?height=200&width=400"
+                  }
+                  alt={booking.event.name}
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <p className="text-sm line-clamp-2">
-                {booking.event.description}
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button asChild variant="outline" className="w-full">
-                <Link href={`/events/${booking.event._id}`}>
-                  {t("view_details")}
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+              <CardContent className="pt-6">
+                <h2 className="text-xl font-semibold mb-2">
+                  {booking.event.name}
+                </h2>
+                <div className="flex items-center text-sm text-muted-foreground mb-4">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>
+                    {new Date(booking.event.date).toLocaleDateString()}
+                  </span>
+                  <MapPin className="h-4 w-4 ml-3 mr-1" />
+                  <span>{booking.event.venue}</span>
+                </div>
+                <p className="text-sm line-clamp-2">
+                  {booking.event.description}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button asChild variant="outline" className="w-full">
+                  <Link href={`/events/${booking.event._id}`}>
+                    {t("view_details")}
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
       </div>
     </div>
   );

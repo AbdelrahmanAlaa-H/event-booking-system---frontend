@@ -79,6 +79,9 @@ export function TagsManagement() {
         description: t("tag_created"),
       });
       handleCloseDialog();
+      if (props.onTagCreated) {
+        props.onTagCreated();
+      }
     } catch (error) {
       toast({
         title: t("error"),
@@ -99,6 +102,9 @@ export function TagsManagement() {
           title: t("success"),
           description: t("tag_deleted"),
         });
+        if (props.onTagDeleted) {
+          props.onTagDeleted();
+        }
       } catch (error) {
         toast({
           title: t("error"),

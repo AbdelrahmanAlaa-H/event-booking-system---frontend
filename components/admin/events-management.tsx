@@ -258,6 +258,16 @@ export function EventsManagement() {
     }
   };
 
+  const reloadCategories = async () => {
+    const categoriesData = await fetchCategories();
+    setCategories(categoriesData);
+  };
+
+  const reloadTags = async () => {
+    const tagsData = await fetchTags();
+    setTags(tagsData);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
